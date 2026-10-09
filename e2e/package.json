@@ -1,0 +1,12 @@
+{
+  "name": "mattermost-plugin-quick-create-e2e",
+  "private": true,
+  "scripts": {
+    "server": "./scripts/start-server.sh",
+    "server:stop": "docker compose down -v || docker-compose down -v",
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0"
+  }
+}
