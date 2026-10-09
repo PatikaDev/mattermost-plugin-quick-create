@@ -1,0 +1,52 @@
+name: release
+
+# Push a tag like v1.0.0 to publish. The version in the built plugin comes from the tag.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+          cache-dependency-path: webapp/package-lock.json
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Release notes from CHANGELOG.md
+        # Fails early if the CHANGELOG has no section for this version.
+        run: |
+          .github/release-notes.sh "$GITHUB_REF_NAME" > notes.md
+          {
+            echo
+            echo '### Install'
+            echo "Download \`dev.patika.quick-create-${GITHUB_REF_NAME#v}.tar.gz\` below, then in Mattermost open **System Console → Plugins → Plugin Management → Upload Plugin** and enable it. \`SHA256SUMS\` is attached for verification."
+            prev=$(git describe --tags --abbrev=0 "${GITHUB_REF_NAME}^" 2>/dev/null || true)
+            if [ -n "$prev" ]; then
+              echo
+              echo "**Full Changelog**: https://github.com/${GITHUB_REPOSITORY}/compare/${prev}...${GITHUB_REF_NAME}"
+            fi
+          } >> notes.md
+          cat notes.md
+      - name: Test and build
+        run: |
+          make apply
+          go test -race -count=1 ./server/...
+          cd webapp && npm ci && npm run lint && npm run check-types && npm run test-ci && cd ..
+          make dist
+      - name: Checksum
+        run: cd dist && sha256sum *.tar.gz > SHA256SUMS && cat SHA256SUMS
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/*.tar.gz dist/SHA256SUMS --verify-tag --notes-file notes.md --title "$GITHUB_REF_NAME"

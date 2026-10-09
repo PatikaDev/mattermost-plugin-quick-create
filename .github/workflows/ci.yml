@@ -1,0 +1,87 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Lint, types, unit tests (Go + webapp), build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+          cache-dependency-path: webapp/package-lock.json
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Install
+        run: cd webapp && npm ci
+      - name: Generate manifest
+        # webapp/src/manifest.ts is generated from plugin.json (git-ignored); lint,
+        # type-check and tests import it, so create it before they run.
+        run: make apply
+      - name: Go lint
+        uses: golangci/golangci-lint-action@v8
+        with:
+          version: v2.9.0
+          args: ./server/...
+      - name: Go tests
+        run: go test -race -count=1 ./server/...
+      - name: Lint
+        run: cd webapp && npm run lint
+      - name: Type-check
+        run: cd webapp && npm run check-types
+      - name: Unit tests
+        run: cd webapp && npm run test-ci
+      - name: Build
+        run: make dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plugin
+          path: dist/*.tar.gz
+
+  e2e:
+    # The same build must work on every supported server line: 11.x ships React 18,
+    # 12.x ships React 19. Add new lines here as Mattermost releases them.
+    name: E2E on Mattermost ${{ matrix.mattermost }}
+    needs: check
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        mattermost: ['11.7.11', '12.0.0-rc3']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: plugin
+          path: dist
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+          cache-dependency-path: e2e/package-lock.json
+      - name: Install Playwright
+        run: cd e2e && npm ci && npx playwright install --with-deps chrome
+      - name: Start Mattermost ${{ matrix.mattermost }}
+        run: cd e2e && MM_VERSION=${{ matrix.mattermost }} ./scripts/start-server.sh
+      - name: Run E2E
+        run: cd e2e && npx playwright test
+      - name: Server logs on failure
+        if: failure()
+        run: cd e2e && docker compose logs mattermost | tail -200
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: e2e-results-${{ matrix.mattermost }}
+          path: e2e/test-results
