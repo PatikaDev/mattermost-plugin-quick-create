@@ -1,0 +1,423 @@
+/* Copyright (c) 2026-present Patika. All Rights Reserved. See LICENSE for license information. */
+/* Mattermost theme variables keep everything right in light and dark themes. */
+
+.qc-toolbar-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: rgba(var(--center-channel-color-rgb), 0.56);
+    cursor: pointer;
+}
+
+.qc-toolbar-button:hover:not(:disabled),
+.qc-toolbar-button--active {
+    background: rgba(var(--center-channel-color-rgb), 0.08);
+    color: rgba(var(--center-channel-color-rgb), 0.72);
+}
+
+.qc-toolbar-button:disabled {
+    opacity: 0.48;
+    cursor: default;
+}
+
+.qc-menu {
+    position: fixed;
+    z-index: 1100;
+    width: 340px;
+    padding: 8px 0;
+    border: 1px solid rgba(var(--center-channel-color-rgb), 0.16);
+    border-radius: 4px;
+    background: var(--center-channel-bg);
+    color: var(--center-channel-color);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.qc-menu__title {
+    padding: 6px 16px 8px;
+    color: rgba(var(--center-channel-color-rgb), 0.56);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.qc-menu__item {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    padding: 8px 16px;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+}
+
+.qc-menu__item > span {
+    white-space: nowrap;
+}
+
+.qc-menu__item:hover:not(:disabled) {
+    background: rgba(var(--center-channel-color-rgb), 0.08);
+}
+
+.qc-menu__error {
+    padding: 4px 16px 0;
+}
+
+.qc-muted {
+    color: rgba(var(--center-channel-color-rgb), 0.64);
+}
+
+.qc-error {
+    color: var(--error-text);
+}
+
+.qc-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.qc-dialog {
+    width: min(420px, calc(100vw - 32px));
+    padding: 24px;
+    border-radius: 8px;
+    background: var(--center-channel-bg);
+    color: var(--center-channel-color);
+    box-shadow: 0 20px 32px rgba(0, 0, 0, 0.12);
+}
+
+.qc-dialog h2 {
+    margin: 0 0 16px;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.qc-dialog__fields {
+    display: flex;
+    gap: 12px;
+}
+
+.qc-dialog__fields label {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 4px;
+    font-weight: normal;
+}
+
+.qc-dialog__fields input {
+    padding: 8px;
+    border: 1px solid rgba(var(--center-channel-color-rgb), 0.16);
+    border-radius: 4px;
+    background: var(--center-channel-bg);
+    color: inherit;
+    color-scheme: light dark;
+}
+
+.qc-dialog__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.qc-panel {
+    height: 100%;
+    overflow-y: auto;
+    padding: 12px 16px;
+}
+
+.qc-empty {
+    margin-top: 32px;
+    text-align: center;
+}
+
+.qc-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.qc-item {
+    margin-bottom: 12px;
+    padding: 12px;
+    border: 1px solid rgba(var(--center-channel-color-rgb), 0.16);
+    border-radius: 8px;
+}
+
+.qc-item--failed {
+    border-color: var(--error-text);
+}
+
+.qc-item__meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 12px;
+}
+
+.qc-item__where {
+    overflow: hidden;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.qc-item__when {
+    color: rgba(var(--center-channel-color-rgb), 0.72);
+    white-space: nowrap;
+}
+
+.qc-item__text {
+    margin-bottom: 6px;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.qc-item__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.qc-toast {
+    position: fixed;
+    bottom: 96px;
+    left: 50%;
+    z-index: 1030; /* below Mattermost's modals (1040+), so it never covers a dialog */
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    max-width: calc(100vw - 32px);
+    padding: 10px 14px;
+    transform: translateX(-50%);
+    border-radius: 8px;
+    background: var(--center-channel-color);
+    color: var(--center-channel-bg);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+}
+
+.qc-toast__link,
+.qc-toast__close {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+}
+
+.qc-toast__link {
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+.qc-toast__close {
+    font-size: 18px;
+    line-height: 1;
+}
+
+.qc-menu__item-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.qc-dialog--wide {
+    width: min(480px, calc(100vw - 32px));
+}
+
+.qc-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.qc-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 0;
+    font-weight: normal;
+}
+
+.qc-field__label {
+    font-weight: 600;
+}
+
+.qc-input,
+.qc-field select,
+.qc-field textarea,
+.qc-field input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid rgba(var(--center-channel-color-rgb), 0.16);
+    border-radius: 4px;
+    background: var(--center-channel-bg);
+    color: inherit;
+    color-scheme: light dark;
+    font-size: 14px;
+}
+
+.qc-field textarea {
+    min-height: 72px;
+    resize: vertical;
+}
+
+.qc-segmented {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.qc-segmented button {
+    padding: 6px 12px;
+    border: 1px solid rgba(var(--center-channel-color-rgb), 0.16);
+    border-radius: 16px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+}
+
+.qc-segmented button[aria-pressed='true'] {
+    border-color: var(--button-bg);
+    background: rgba(var(--button-bg-rgb), 0.08);
+    color: var(--button-bg);
+    font-weight: 600;
+}
+
+.qc-row {
+    display: flex;
+    gap: 12px;
+}
+
+.qc-row > * {
+    flex: 1;
+}
+
+.qc-picker {
+    position: relative;
+}
+
+.qc-picker__list {
+    position: absolute;
+    z-index: 1;
+    top: 100%;
+    right: 0;
+    left: 0;
+    max-height: 220px;
+    margin: 4px 0 0;
+    padding: 4px 0;
+    overflow-y: auto;
+    border: 1px solid rgba(var(--center-channel-color-rgb), 0.16);
+    border-radius: 4px;
+    background: var(--center-channel-bg);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    list-style: none;
+}
+
+.qc-picker__option {
+    padding: 6px 10px;
+    cursor: pointer;
+}
+
+.qc-picker__option--active,
+.qc-picker__option:hover {
+    background: rgba(var(--center-channel-color-rgb), 0.08);
+}
+
+.qc-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    width: fit-content;
+    padding: 4px 6px 4px 10px;
+    border-radius: 16px;
+    background: rgba(var(--center-channel-color-rgb), 0.08);
+}
+
+.qc-chip button {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+}
+
+.qc-item__repeat {
+    font-size: 12px;
+}
+
+.qc-option {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.qc-option input {
+    flex: 1;
+}
+
+.qc-option__remove {
+    width: 28px;
+    height: 28px;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: rgba(var(--center-channel-color-rgb), 0.56);
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+}
+
+.qc-option__remove:hover:not(:disabled) {
+    background: rgba(var(--center-channel-color-rgb), 0.08);
+}
+
+.qc-option__remove:disabled {
+    visibility: hidden;
+}
+
+.qc-add-option {
+    align-self: flex-start;
+    padding: 4px 0;
+    border: 0;
+    background: transparent;
+    color: var(--button-bg);
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.qc-checks {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.qc-check {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+    margin: 0;
+    font-weight: normal;
+}
+
+.qc-dialog--wide {
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+}
