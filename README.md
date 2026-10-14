@@ -1,7 +1,8 @@
 # Quick Create for Mattermost
 
 Create **polls**, **todos** and **reminders** from a button in the message box — no slash
-commands to remember. One ⊕ button, three short dialogs.
+commands to remember. One ⊕ button, three short dialogs. Plus **Also send to channel** for
+thread replies.
 
 ![Creating from the message box](docs/images/menu.png)
 
@@ -25,6 +26,10 @@ commands to remember. One ⊕ button, three short dialogs.
     **Snooze 1 hour**, **Tomorrow 9:00** and **Done**; channel reminders are posted in the channel;
   - a **Reminders** panel (bell icon in the app bar) lists every reminder you've set, with
     **Delete**.
+- **Also send to channel** in thread replies: switch on the ↪ toggle next to the formatting
+  buttons and your reply is posted in the thread *and* in the channel, as you, under a
+  "↪ replied to a thread: …" line that links back to it — like Slack's checkbox. Attachments are
+  copied too. The toggle switches itself off after each reply.
 
 | Poll | Reminder | Todo |
 |---|---|---|
@@ -72,8 +77,10 @@ configure.
 - Limits: **200** reminders per person, **4,000** characters, at least **30 seconds** and at
   most **one year** ahead. Reminders go to people only, not bots; channel reminders work in
   public and private channels.
-- Mobile apps don't show plugin buttons, so reminders are created from the web or desktop app;
-  they arrive on every device as usual.
+- Mobile apps don't show plugin buttons, so reminders and "Also send to channel" are used from
+  the web or desktop app; the messages arrive on every device as usual.
+- The channel copy of a thread reply is a separate message: editing or deleting the reply
+  later doesn't change the copy.
 
 ## How it works
 

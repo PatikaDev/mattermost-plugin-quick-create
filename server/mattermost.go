@@ -52,3 +52,36 @@ func (a mattermostAdapter) NewID() string { return model.NewId() }
 func (a mattermostAdapter) ActionURL() string {
 	return "/plugins/" + manifest.Id + "/api/v1/actions"
 }
+
+// broadcastAdapter implements broadcast.Mattermost on top of the plugin API.
+type broadcastAdapter struct {
+	p *Plugin
+}
+
+func (a broadcastAdapter) GetPost(postID string) (*model.Post, error) {
+	return a.p.client.Post.GetPost(postID)
+}
+
+func (a broadcastAdapter) CanPost(userID, channelID string) bool {
+	return a.p.API.HasPermissionToChannel(userID, channelID, model.PermissionCreatePost)
+}
+
+func (a broadcastAdapter) CopyFileInfos(userID string, fileIDs []string) ([]string, error) {
+	ids, appErr := a.p.API.CopyFileInfos(userID, fileIDs)
+	if appErr != nil {
+		return nil, appErr
+	}
+	return ids, nil
+}
+
+// CreatePost posts as post.UserId (the reply's author).
+func (a broadcastAdapter) CreatePost(post *model.Post) error {
+	return a.p.client.Post.CreatePost(post)
+}
+
+func (a broadcastAdapter) SiteURL() string {
+	if cfg := a.p.API.GetConfig(); cfg != nil && cfg.ServiceSettings.SiteURL != nil {
+		return *cfg.ServiceSettings.SiteURL
+	}
+	return ""
+}

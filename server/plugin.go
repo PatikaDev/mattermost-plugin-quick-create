@@ -14,6 +14,7 @@ import (
 	"github.com/mattermost/mattermost/server/public/pluginapi/cluster"
 	"github.com/pkg/errors"
 
+	"github.com/PatikaDev/mattermost-plugin-quick-create/server/broadcast"
 	"github.com/PatikaDev/mattermost-plugin-quick-create/server/reminders"
 )
 
@@ -21,11 +22,12 @@ import (
 type Plugin struct {
 	plugin.MattermostPlugin
 
-	client  *pluginapi.Client
-	router  *mux.Router
-	service *reminders.Service
-	botID   string
-	sender  *cluster.Job
+	client      *pluginapi.Client
+	router      *mux.Router
+	service     *reminders.Service
+	broadcaster *broadcast.Broadcaster
+	botID       string
+	sender      *cluster.Job
 
 	// configurationLock synchronizes access to the configuration.
 	configurationLock sync.RWMutex
@@ -59,6 +61,7 @@ func (p *Plugin) OnActivate() error {
 		realClock{},
 		func(msg string, keyValuePairs ...any) { p.API.LogWarn(msg, keyValuePairs...) },
 	)
+	p.broadcaster = broadcast.New(broadcastAdapter{p: p}, func(msg string, keyValuePairs ...any) { p.API.LogWarn(msg, keyValuePairs...) })
 	p.router = p.initRouter()
 
 	// cluster.Schedule runs the job on exactly one node of a cluster at a time.
@@ -79,6 +82,13 @@ func (p *Plugin) OnDeactivate() error {
 		}
 	}
 	return nil
+}
+
+// MessageHasBeenPosted sends thread replies marked "Also send to channel" to the channel too.
+func (p *Plugin) MessageHasBeenPosted(_ *plugin.Context, post *model.Post) {
+	if p.broadcaster != nil {
+		p.broadcaster.MessageHasBeenPosted(post)
+	}
 }
 
 // See https://developers.mattermost.com/extend/plugins/server/reference/

@@ -1,6 +1,6 @@
 import {expect, test, type Page} from '@playwright/test';
 
-import {api, create, http, login, newSession, openChannel, pluginApi, TEAM, waitFor} from './helpers';
+import {api, composer, create, http, login, newSession, openChannel, pluginApi, TEAM, waitFor} from './helpers';
 
 const todoList = (page: Page, list: 'my' | 'in' | 'out') => http(page, 'GET', `/plugins/com.mattermost.plugin-todo/list?list=${list}`) as Promise<Array<{message: string}>>;
 
@@ -42,6 +42,47 @@ test.describe('Quick Create', () => {
             await expect(post.getByRole('button', {name: new RegExp(`^${option}`)})).toBeVisible();
         }
         await expect(post).toContainText('anonymous');
+    });
+
+    test('Also send to channel copies a thread reply into the channel, once', async ({page}) => {
+        const town = await api(page, 'GET', `/teams/name/${TEAM}/channels/name/town-square`);
+        const root = await api(page, 'POST', '/posts', {channel_id: town.id, message: `Campaign brief ${Date.now()}`});
+        await openChannel(page, 'town-square');
+        const rootEl = page.locator(`#post_${root.id}`);
+        await rootEl.hover();
+        await rootEl.locator('button[aria-label*="reply" i]').first().click();
+        await expect(page.locator('#reply_textbox')).toBeVisible();
+
+        const toggle = composer(page, 'reply_textbox').getByRole('button', {name: 'Also send to ~Town Square'});
+        await toggle.click();
+        await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+        const text = `Approved, ship it ${Date.now()}`;
+        await page.locator('#reply_textbox').fill(text);
+        await page.locator('#reply_textbox').press('Enter');
+        await expect(toggle).toHaveAttribute('aria-pressed', 'false'); // off again after sending
+
+        const copy = await waitFor(async () => {
+            const posts = await api(page, 'GET', `/channels/${town.id}/posts?per_page=30`);
+            return Object.values<any>(posts.posts).find((p) => p.props?.qc_copy_of && p.message.includes(text));
+        }, 30_000);
+        const thread = await api(page, 'GET', `/posts/${root.id}/thread`);
+        const reply = Object.values<any>(thread.posts).find((p) => p.message === text);
+        expect(reply).toBeTruthy();
+        expect(copy).toMatchObject({root_id: '', user_id: reply.user_id, message: `↪ _replied to a thread:_ [${root.message}](http://localhost:8067/_redirect/pl/${reply.id}?src=channel)\n\n${text}`});
+        expect(copy.props.qc_copy_of).toBe(reply.id);
+        expect((copy.metadata?.embeds || []).filter((e: any) => e.type === 'permalink')).toEqual([]);
+
+        // A reply without the toggle stays in the thread.
+        const plain = `Thread only ${Date.now()}`;
+        await page.locator('#reply_textbox').fill(plain);
+        await page.locator('#reply_textbox').press('Enter');
+        await waitFor(async () => {
+            const t = await api(page, 'GET', `/posts/${root.id}/thread`);
+            return Object.values<any>(t.posts).find((p) => p.message === plain);
+        }, 30_000);
+        await page.waitForTimeout(3000);
+        const posts = await api(page, 'GET', `/channels/${town.id}/posts?per_page=30`);
+        expect(Object.values<any>(posts.posts).some((p) => p.props?.qc_copy_of && p.message.includes(plain))).toBe(false);
     });
 
     test('Todo for yourself lands in your Todo list', async ({page}) => {

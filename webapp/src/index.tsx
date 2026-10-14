@@ -9,6 +9,8 @@ import type {GlobalState} from '@mattermost/types/store';
 
 import type {PluginRegistry} from 'types/mattermost-webapp';
 
+import {markPost} from './broadcast';
+import AlsoSendToggle from './components/also_send_toggle';
 import CreateButton from './components/create_button';
 import {BellIcon} from './components/icons';
 import RemindersPanel from './components/reminders_panel';
@@ -24,6 +26,11 @@ export default class Plugin {
 
         // The ⊕ button in every message box (channel and thread reply).
         registry.registerPostEditorActionComponent(CreateButton);
+
+        // "Also send to ~channel" in thread reply boxes: the hook marks the reply, the server
+        // posts the channel copy.
+        registry.registerPostEditorActionComponent(AlsoSendToggle);
+        registry.registerMessageWillBePostedHook(async (post) => markPost(post));
 
         // The "Reminders" panel, opened from the app bar / channel header.
         const {showRHSPlugin, toggleRHSPlugin} = registry.registerRightHandSidebarComponent(RemindersPanel, 'Reminders');

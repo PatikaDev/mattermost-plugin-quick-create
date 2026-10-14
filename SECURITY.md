@@ -15,6 +15,8 @@ for this repository instead. We aim to acknowledge reports within 5 working days
   create reminders for the person who clicked.
 - **Poll** and **Todo** use Matterpoll's slash command and the Todo plugin's API with the user's
   own session; they get no extra permissions from this plugin.
+- **Also send to channel** only copies a reply into the channel it was posted in, as the same
+  user, and only if that user can post there; the copy itself is never copied again.
 - Data stays on the Mattermost server (plugin key-value store).
 
 ## Supported versions

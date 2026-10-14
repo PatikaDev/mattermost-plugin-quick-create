@@ -7,7 +7,8 @@ export default defineConfig({
     timeout: 240_000,
     workers: 1,
     retries: 0,
-    reporter: [['list']],
+    // In CI, also report failures as GitHub annotations so they're readable without the logs.
+    reporter: process.env.CI ? [['list'], ['github']] : [['list']],
     use: {
         baseURL: 'http://localhost:8067',
         viewport: {width: 1400, height: 900},
