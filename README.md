@@ -1,8 +1,8 @@
 # Quick Create for Mattermost
 
 Create **polls**, **todos** and **reminders** from a button in the message box — no slash
-commands to remember. One ⊕ button, three short dialogs. Plus **Also send to channel** for
-thread replies.
+commands to remember. One ⊕ button, three short dialogs. Plus a Slack-style
+[**Also send to channel**](#also-send-to-channel) checkbox for thread replies.
 
 ![Creating from the message box](docs/images/menu.png)
 
@@ -26,11 +26,7 @@ thread replies.
     **Snooze 1 hour**, **Tomorrow 9:00** and **Done**; channel reminders are posted in the channel;
   - a **Reminders** panel (bell icon in the app bar) lists every reminder you've set, with
     **Delete**.
-- **Also send to channel** in thread replies: tick **Also send to ~channel** under the text, like
-  Slack's checkbox, and your reply is posted in the thread *and* in the channel, as you, under a
-  "↪ replied to a thread: …" line that links back to it. Attachments are copied too. The box
-  unticks itself after each reply. (It lives with the formatting toolbar, so it is hidden while
-  formatting is switched off with **Aa**.)
+- **Also send to channel** for thread replies, like Slack — see [below](#also-send-to-channel).
 
 | Poll | Reminder | Todo |
 |---|---|---|
@@ -39,6 +35,40 @@ thread replies.
 ![Delivered reminder](docs/images/reminder-dm.png)
 
 ![The Reminders panel](docs/images/panel.png)
+
+## Also send to channel
+
+Reply in a thread and share the reply with the whole channel in one step — the same checkbox
+Slack has under its reply box.
+
+**1. Tick the box under your reply.** It appears in every thread reply box, named after the
+channel the thread is in.
+
+![The "Also send to ~Town Square" checkbox under a thread reply](docs/images/also-send-checkbox.png)
+
+**2. Send as usual.** Your reply lands in the thread *and* in the channel. The channel copy is
+posted as you, says which thread it answers, and links straight back to it, so people can jump
+into the conversation. Attachments come along too.
+
+![The reply in the thread (right) and its copy in the channel (left)](docs/images/also-send-result.png)
+
+The channel copy reads:
+
+> ↪ *replied to a thread:* [Campaign brief for the autumn launch is ready — comments welcome by Thursday](#)
+>
+> Approved — ship it on Monday 🚀
+
+**3. The box unticks itself** after sending, so the next reply stays in the thread unless you
+tick it again.
+
+Good to know:
+
+- The checkbox lives with Mattermost's formatting toolbar (the only place plugins can add to the
+  message box), so it's hidden while formatting is switched off with **Aa**.
+- The channel copy is its own message: editing or deleting the thread reply later doesn't change
+  it.
+- Mobile apps don't show plugin controls, so ticking the box works in the web and desktop apps;
+  everyone sees the channel copy on every device.
 
 ## Requirements
 
@@ -78,16 +108,16 @@ configure.
 - Limits: **200** reminders per person, **4,000** characters, at least **30 seconds** and at
   most **one year** ahead. Reminders go to people only, not bots; channel reminders work in
   public and private channels.
-- Mobile apps don't show plugin buttons, so reminders and "Also send to channel" are used from
-  the web or desktop app; the messages arrive on every device as usual.
-- The channel copy of a thread reply is a separate message: editing or deleting the reply
-  later doesn't change the copy.
+- Mobile apps don't show plugin buttons, so polls, todos, reminders and "Also send to channel"
+  are used from the web or desktop app; the messages arrive on every device as usual.
 
 ## How it works
 
 The webapp adds the button, the dialogs and the panel. **Poll** turns the dialog into
 Matterpoll's `/poll "Question" "Option 1" "Option 2" … --settings` command and runs it for you
-(Matterpoll's own dialog is limited to three options; its command is not). **Todo** calls the Todo plugin's own
+(Matterpoll's own dialog is limited to three options; its command is not). **Also send to channel**
+marks the reply when you send it (a `MessageWillBePosted` hook); the server sees the mark
+(`MessageHasBeenPosted`) and posts the channel copy as you, with copied attachments. **Todo** calls the Todo plugin's own
 API. **Reminders** are stored in this plugin's key-value store; a cluster-safe job delivers due
 reminders once a minute, claiming each one with a compare-and-set so it is delivered once even
 with several app servers.
