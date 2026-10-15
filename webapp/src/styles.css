@@ -422,24 +422,32 @@
     overflow-y: auto;
 }
 
+.qc-also-send-anchor {
+    display: none;
+}
+
 .qc-also-send {
-    width: auto;
-    min-width: 32px;
-    gap: 4px;
-    padding: 0 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 2px 16px 8px;
+    color: rgba(var(--center-channel-color-rgb), 0.72);
+    font-size: 13px;
+    font-weight: normal;
+    cursor: pointer;
+    user-select: none;
 }
 
-.qc-also-send--on,
-.qc-also-send--on:hover:not(:disabled) {
-    background: rgba(var(--button-bg-rgb), 0.08);
-    color: var(--button-bg);
+.qc-also-send input {
+    width: 15px;
+    height: 15px;
+    margin: 0;
+    accent-color: var(--button-bg);
+    cursor: pointer;
 }
 
-.qc-also-send__label {
-    max-width: 180px;
-    overflow: hidden;
-    font-size: 12px;
+.qc-also-send strong {
+    color: rgba(var(--center-channel-color-rgb), 0.88);
     font-weight: 600;
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }

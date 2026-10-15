@@ -26,10 +26,11 @@ thread replies.
     **Snooze 1 hour**, **Tomorrow 9:00** and **Done**; channel reminders are posted in the channel;
   - a **Reminders** panel (bell icon in the app bar) lists every reminder you've set, with
     **Delete**.
-- **Also send to channel** in thread replies: switch on the ↪ toggle next to the formatting
-  buttons and your reply is posted in the thread *and* in the channel, as you, under a
-  "↪ replied to a thread: …" line that links back to it — like Slack's checkbox. Attachments are
-  copied too. The toggle switches itself off after each reply.
+- **Also send to channel** in thread replies: tick **Also send to ~channel** under the text, like
+  Slack's checkbox, and your reply is posted in the thread *and* in the channel, as you, under a
+  "↪ replied to a thread: …" line that links back to it. Attachments are copied too. The box
+  unticks itself after each reply. (It lives with the formatting toolbar, so it is hidden while
+  formatting is switched off with **Aa**.)
 
 | Poll | Reminder | Todo |
 |---|---|---|

@@ -53,13 +53,14 @@ test.describe('Quick Create', () => {
         await rootEl.locator('button[aria-label*="reply" i]').first().click();
         await expect(page.locator('#reply_textbox')).toBeVisible();
 
-        const toggle = composer(page, 'reply_textbox').getByRole('button', {name: 'Also send to ~Town Square'});
-        await toggle.click();
-        await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+        // The checkbox sits under the text, like Slack's.
+        const toggle = composer(page, 'reply_textbox').getByRole('checkbox', {name: 'Also send to ~Town Square'});
+        await toggle.check();
+        await expect(toggle).toBeChecked();
         const text = `Approved, ship it ${Date.now()}`;
         await page.locator('#reply_textbox').fill(text);
         await page.locator('#reply_textbox').press('Enter');
-        await expect(toggle).toHaveAttribute('aria-pressed', 'false'); // off again after sending
+        await expect(toggle).not.toBeChecked(); // off again after sending
 
         const copy = await waitFor(async () => {
             const posts = await api(page, 'GET', `/channels/${town.id}/posts?per_page=30`);

@@ -1,7 +1,8 @@
 // Copyright (c) 2026-present Patika. All Rights Reserved.
 // See LICENSE for license information.
 
-import React from 'react';
+import React, {useEffect, useRef, useState} from 'react';
+import ReactDOM from 'react-dom';
 
 import {alsoSend, useAlsoSend} from '../broadcast';
 import {channelLabel} from '../mattermost_state';
@@ -10,38 +11,62 @@ type Props = {
     draft: {channelId: string; rootId?: string};
 };
 
-// "Also send to ~channel" in thread reply boxes only.
+// Finds the message box around the toolbar and adds an empty host element right under the
+// text area, where Slack shows its "Also send to #channel" checkbox. Mattermost only offers
+// plugins a toolbar slot, so the row is portalled there. The host sits after React's own
+// nodes for the text area, so Mattermost keeps rendering its children around it unchanged.
+function useRowHost(anchor: React.RefObject<HTMLElement>, active: boolean): HTMLElement | null {
+    const [host, setHost] = useState<HTMLElement | null>(null);
+    useEffect(() => {
+        const cell = active ? anchor.current?.closest('.AdvancedTextEditor__cell') : null;
+        const textarea = cell?.querySelector('textarea');
+        const textBlock = textarea && Array.from(cell!.children).find((child) => child.contains(textarea));
+        if (!textBlock) {
+            setHost(null);
+            return undefined;
+        }
+        const el = document.createElement('div');
+        el.className = 'qc-also-send-host';
+        textBlock.after(el);
+        setHost(el);
+        return () => {
+            el.remove();
+        };
+    }, [anchor, active]);
+    return host;
+}
+
+// "Also send to ~channel" under the text of thread reply boxes.
 export default function AlsoSendToggle({draft}: Props) {
     const rootId = draft?.rootId || '';
-    const on = useAlsoSend(rootId);
+    const anchor = useRef<HTMLSpanElement>(null);
+    const checked = useAlsoSend(rootId);
+    const host = useRowHost(anchor, Boolean(rootId));
+
     if (!rootId) {
         return null;
     }
-    const label = `Also send to ${channelLabel(draft.channelId)}`;
+    const label = channelLabel(draft.channelId);
     return (
-        <button
-            type='button'
-            className={`qc-toolbar-button qc-also-send${on ? ' qc-also-send--on' : ''}`}
-            aria-label={label}
-            aria-pressed={on}
-            title={on ? `${label} — on` : label}
-            onClick={() => alsoSend.toggle(rootId)}
-        >
-            <svg
-                width={18}
-                height={18}
-                viewBox='0 0 24 24'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth='2'
-                strokeLinecap='round'
-                strokeLinejoin='round'
+        <>
+            <span
+                ref={anchor}
+                className='qc-also-send-anchor'
                 aria-hidden='true'
-            >
-                <path d='M4 5v6a4 4 0 0 0 4 4h12'/>
-                <path d='M16 11l4 4-4 4'/>
-            </svg>
-            {on && <span className='qc-also-send__label'>{label}</span>}
-        </button>
+            />
+            {host && ReactDOM.createPortal((
+                <label className='qc-also-send'>
+                    <input
+                        type='checkbox'
+                        checked={checked}
+                        onChange={() => alsoSend.toggle(rootId)}
+                    />
+                    <span>
+                        {'Also send to '}
+                        <strong>{label}</strong>
+                    </span>
+                </label>
+            ), host)}
+        </>
     );
 }
