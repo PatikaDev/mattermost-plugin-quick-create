@@ -21,7 +21,20 @@ import {store as reminders} from './store';
 import './styles.css';
 
 export default class Plugin {
+    // Mattermost can call initialize twice on the same instance when a plugin is enabled again
+    // while its code is still loading (e.g. during an upgrade); registering twice would show
+    // every icon and button twice until the page is reloaded.
+    private initialized = false;
+
+    public uninitialize() {
+        this.initialized = false;
+    }
+
     public async initialize(registry: PluginRegistry, store: Store<GlobalState>) {
+        if (this.initialized) {
+            return;
+        }
+        this.initialized = true;
         setStore(store);
 
         // The ⊕ button in every message box (channel and thread reply).

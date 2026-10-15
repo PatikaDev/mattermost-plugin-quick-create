@@ -4,6 +4,13 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.1.1] — 2026-10-15
+
+### Fixed
+- No more duplicate icons and buttons after an upgrade: when Mattermost starts the plugin twice
+  in an open window (it can, if the plugin is re-enabled while its code is still loading), the
+  second start is ignored. Previously the page needed a reload to clear the duplicates.
+
 ## [1.1.0] — 2026-10-15
 
 ### Added
